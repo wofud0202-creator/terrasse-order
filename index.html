@@ -249,6 +249,7 @@ const ITEMS=[
 let st={};
 ITEMS.forEach(i=>st[i.id]={s:null,q:1});
 let az="all",su=false,sn=false,pressTimer=null;
+let touchStartX=0,touchStartY=0,touchMoved=false;
 
 function today(){
   const d=new Date(),w=["일","월","화","수","목","금","토"];
@@ -346,8 +347,8 @@ function renderContent(){
         const isNeed=s.s==="need";
         const isOk=s.s==="ok";
         return `<div class="row${isOk?" is-ok":""}" id="row${i.id}"
-          onmousedown="startPress(${i.id})" onmouseup="endPress(${i.id})" onmouseleave="cancelPress()"
-          ontouchstart="startPress(${i.id})" ontouchend="endPress(${i.id})" ontouchcancel="cancelPress()">
+          onmousedown="startPress(${i.id},event)" onmouseup="endPress(${i.id})" onmouseleave="cancelPress()"
+          ontouchstart="startPress(${i.id},event)" ontouchmove="movePress(event)" ontouchend="endPress(${i.id})" ontouchcancel="cancelPress()">
           <div class="row-main">
             <div class="row-info">
               <div class="row-name${i.u?" urg":""}">${i.name}${i.u?`<span class="urg-badge">긴급</span>`:""}</div>
@@ -371,12 +372,26 @@ function renderContent(){
   }).join("");
 }
 
-function startPress(id){
+function startPress(id,e){
   cancelPress();
-  pressTimer=setTimeout(()=>{pressTimer=null;longPress(id);},500);
+  touchMoved=false;
+  const t=e.touches?e.touches[0]:e;
+  touchStartX=t.clientX;
+  touchStartY=t.clientY;
+  pressTimer=setTimeout(()=>{
+    if(!touchMoved){pressTimer=null;longPress(id);}
+  },500);
+}
+function movePress(e){
+  if(!pressTimer) return;
+  const t=e.touches?e.touches[0]:e;
+  const dx=Math.abs(t.clientX-touchStartX);
+  const dy=Math.abs(t.clientY-touchStartY);
+  if(dx>6||dy>6){touchMoved=true;cancelPress();}
 }
 function endPress(id){
-  if(pressTimer){clearTimeout(pressTimer);pressTimer=null;tap(id);}
+  if(pressTimer&&!touchMoved){clearTimeout(pressTimer);pressTimer=null;tap(id);}
+  else{cancelPress();}
 }
 function cancelPress(){if(pressTimer){clearTimeout(pressTimer);pressTimer=null;}}
 
