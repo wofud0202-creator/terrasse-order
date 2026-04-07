@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="발주체크">
+<meta name="theme-color" content="#ffffff">
+<title>La Terrasse 발주 체크</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  :root{
+    --bg:#ffffff;--bg2:#f7f7f5;--bg3:#f0f0ed;
+    --txt:#1a1a1a;--txt2:#888;--txt3:#bbb;
+    --border:#e8e8e5;--border2:#d0d0cc;
+    --purple:#534AB7;--purple-light:#EEEDFE;
+    --red:#E24B4A;--red-light:#FCEBEB;--red-dark:#A32D2D;
+    --green:#639922;--green-light:#EAF3DE;
+    --r-md:8px;--r-lg:14px;--r-xl:20px;
+  }
+  html,body{height:100%;background:var(--bg2);font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;}
+
+  .wrap{max-width:430px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
+
+  /* TOP BAR */
+  .topbar{background:var(--bg);padding:16px 20px 0;border-bottom:0.5px solid var(--border);}
+  .topbar-title{font-size:20px;font-weight:600;color:var(--txt);letter-spacing:-0.4px;}
+  .topbar-sub{font-size:13px;color:var(--txt2);margin-top:3px;}
+  .prog-row{display:flex;align-items:center;gap:10px;padding:14px 0 12px;}
+  .prog-bar{flex:1;height:3px;background:var(--bg3);border-radius:2px;}
+  .prog-fill{height:3px;border-radius:2px;background:var(--purple);transition:width 0.3s ease;}
+  .prog-lbl{font-size:12px;color:var(--txt2);white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+  /* STAT */
+  .stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--border);gap:0.5px;}
+  .stat-cell{background:var(--bg);padding:14px 0;text-align:center;}
+  .stat-n{font-size:26px;font-weight:600;color:var(--txt);letter-spacing:-0.5px;font-variant-numeric:tabular-nums;}
+  .stat-n.red{color:var(--red);}
+  .stat-l{font-size:11px;color:var(--txt2);margin-top:3px;}
+
+  /* CHIPS */
+  .chips{background:var(--bg);padding:10px 16px;display:flex;gap:6px;overflow-x:auto;border-bottom:0.5px solid var(--border);}
+  .chips::-webkit-scrollbar{display:none;}
+  .chip{flex-shrink:0;font-size:13px;padding:6px 14px;border-radius:20px;border:0.5px solid var(--border2);background:transparent;color:var(--txt2);cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;}
+  .chip.on{background:var(--purple);color:#fff;border-color:var(--purple);}
+  .chip.alert-on{background:var(--red-light);color:var(--red-dark);border-color:var(--red);}
+  .nc{display:inline-block;padding:0 5px;font-size:11px;border-radius:10px;margin-left:3px;}
+  .chip.on .nc{background:rgba(255,255,255,0.25);color:#fff;}
+  .chip:not(.on) .nc{background:var(--red-light);color:var(--red-dark);}
+
+  /* CONTENT */
+  .content{flex:1;padding-bottom:120px;}
+
+  .sec{margin-top:8px;}
+  .sec-head{display:flex;align-items:center;justify-content:space-between;padding:8px 20px 4px;}
+  .sec-title{font-size:12px;font-weight:600;color:var(--txt2);letter-spacing:0.06em;text-transform:uppercase;}
+  .sec-meta{font-size:12px;color:var(--txt2);}
+  .sec-need{color:var(--red);font-weight:600;}
+
+  /* ROW */
+  .row{background:var(--bg);border-bottom:0.5px solid var(--border);padding:0 20px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background 0.08s;}
+  .row:active{background:var(--bg2);}
+  .row.is-ok .row-main{opacity:0.32;}
+  .row-main{display:flex;align-items:center;gap:14px;padding:16px 0 14px;}
+  .row-info{flex:1;min-width:0;}
+  .row-name{font-size:15px;font-weight:500;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-0.2px;}
+  .row-name.urg{color:var(--red-dark);}
+  .urg-badge{font-size:11px;color:var(--red);font-weight:500;margin-left:4px;}
+  .row-hint{font-size:12px;color:var(--txt2);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+  /* DOT */
+  .dot{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border2);background:transparent;flex-shrink:0;transition:background 0.15s,border-color 0.15s;position:relative;}
+  .dot.need{background:var(--red);border-color:var(--red);}
+  .dot.ok{background:var(--green);border-color:var(--green);}
+  .dot.ok::after{content:"";position:absolute;left:7px;top:4px;width:6px;height:10px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg);}
+
+  /* QTY EXPAND */
+  .qty-expand{overflow:hidden;max-height:0;transition:max-height 0.2s ease;}
+  .qty-expand.open{max-height:64px;}
+  .qty-inner{display:flex;align-items:center;padding:0 0 16px;}
+  .qty-avg{font-size:12px;color:var(--txt2);}
+  .qty-ctrl{display:flex;align-items:center;gap:12px;margin-left:auto;}
+  .qty-btn{width:34px;height:34px;border-radius:50%;border:0.5px solid var(--border2);background:var(--bg2);color:var(--txt);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;-webkit-tap-highlight-color:transparent;}
+  .qty-btn:active{transform:scale(0.88);background:var(--bg3);}
+  .qty-val{font-size:17px;font-weight:600;color:var(--purple);min-width:26px;text-align:center;font-variant-numeric:tabular-nums;}
+
+  /* BOTTOM */
+  .bottom{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:0.5px solid var(--border);padding:10px 16px 28px;max-width:430px;margin:0 auto;}
+  .hint-row{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:8px;}
+  .hint-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2);}
+  .hint-dot{width:10px;height:10px;border-radius:50%;}
+  .hint-txt{font-size:11px;color:var(--txt3);text-align:center;margin-bottom:10px;}
+  .cta{width:100%;padding:16px;font-size:16px;font-weight:600;border:none;border-radius:var(--r-lg);background:var(--purple);color:#fff;cursor:pointer;letter-spacing:-0.2px;-webkit-tap-highlight-color:transparent;}
+  .cta:disabled{background:var(--bg3);color:var(--txt3);}
+  .cta:active{opacity:0.82;}
+
+  /* SHEET */
+  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:100;align-items:flex-end;justify-content:center;}
+  .overlay.open{display:flex;}
+  .sheet{background:var(--bg);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:20px 20px 36px;width:100%;max-width:430px;max-height:76vh;overflow-y:auto;}
+  .handle{width:38px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px;}
+  .sheet-title{font-size:17px;font-weight:600;color:var(--txt);margin-bottom:14px;letter-spacing:-0.3px;}
+  .msg-box{font-size:14px;line-height:2.1;white-space:pre-wrap;color:var(--txt);background:var(--bg2);border-radius:var(--r-lg);padding:16px;margin-bottom:14px;}
+  .sheet-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .sb{padding:14px;border-radius:var(--r-md);border:0.5px solid var(--border2);background:var(--bg2);color:var(--txt);font-size:14px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+  .sb.primary{background:var(--purple);color:#fff;border:none;}
+  .sb:active{opacity:0.78;}
+  .sb-full{width:100%;margin-top:8px;}
+
+  /* EMPTY */
+  .empty{padding:60px 20px;text-align:center;color:var(--txt2);font-size:14px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="topbar-title">발주 체크</div>
+    <div class="topbar-sub" id="sub"></div>
+    <div class="prog-row">
+      <div class="prog-bar"><div class="prog-fill" id="pf" style="width:0%"></div></div>
+      <div class="prog-lbl" id="pl">0 / 0</div>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-cell"><div class="stat-n red" id="sN">0</div><div class="stat-l">발주 필요</div></div>
+    <div class="stat-cell"><div class="stat-n" id="sO">0</div><div class="stat-l">확인 완료</div></div>
+    <div class="stat-cell"><div class="stat-n" id="sL">0</div><div class="stat-l">미확인</div></div>
+  </div>
+
+  <div class="chips" id="chips"></div>
+  <div class="content" id="content"></div>
+
+  <div class="bottom">
+    <div class="hint-row">
+      <div class="hint-item"><div class="hint-dot" style="border:1.5px solid #bbb;"></div>미확인</div>
+      <div class="hint-item"><div class="hint-dot" style="background:var(--red);"></div>발주 필요</div>
+      <div class="hint-item"><div class="hint-dot" style="background:var(--green);"></div>확인 완료</div>
+    </div>
+    <div class="hint-txt">탭 → 발주 필요 &nbsp;·&nbsp; 길게 누르기 → 확인 완료</div>
+    <button class="cta" id="cta" disabled onclick="openSheet()">발주 목록 공유</button>
+  </div>
+</div>
+
+<div class="overlay" id="ov" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title">발주 목록</div>
+    <div class="msg-box" id="msg"></div>
+    <div class="sheet-btns">
+      <button class="sb" id="cpBtn" onclick="doCopy()">복사</button>
+      <button class="sb primary" onclick="doKakao()">카카오톡</button>
+    </div>
+    <button class="sb sb-full" onclick="closeSheet()">닫기</button>
+  </div>
+</div>
+
+<script>
+const ZONES=[
+  {id:"hall_cold",label:"홀 냉장·냉동"},
+  {id:"hall_dry",label:"홀 건식"},
+  {id:"tea",label:"티장"},
+  {id:"bak_cold",label:"베이커리 냉장·냉동"},
+  {id:"bak_dry",label:"베이커리 건식"},
+  {id:"storage",label:"창고·외부"},
+  {id:"sk",label:"SK엠시티"},
+];
+
+const ITEMS=[
+  {id:1,z:"hall_cold",name:"매일우유",hint:"화: 이번주 목요일분 / 목: 다음주 수요일분",avg:"2~4박스",u:false},
+  {id:2,z:"hall_cold",name:"오틀리 우유",hint:"5개 이하",avg:"1박스",u:false},
+  {id:3,z:"hall_cold",name:"엑설런트 오리지널",hint:"3팩(미개봉) 이하",avg:"4팩",u:false},
+  {id:4,z:"hall_cold",name:"민트잎",hint:"3일치 쓸 양 없을 시",avg:"1~2팩",u:false},
+  {id:5,z:"hall_dry",name:"고소 원두",hint:"수: 다음주 화요일분 / 일: 다음주 금요일분",avg:"4봉",u:false},
+  {id:6,z:"hall_dry",name:"디카페인 원두",hint:"수: 다음주 화요일분 / 일: 다음주 금요일분",avg:"1봉",u:false},
+  {id:7,z:"hall_dry",name:"애플티 (파리의 축제)",hint:"마지막 티 개봉 시",avg:"1박스",u:false},
+  {id:8,z:"hall_dry",name:"아쌈티 1kg",hint:"1봉 남았을 때",avg:"1~2봉",u:false},
+  {id:9,z:"hall_dry",name:"얼그레이티 1kg",hint:"1봉+반 남았을 때",avg:"2봉",u:false},
+  {id:10,z:"hall_dry",name:"라인바싸",hint:"마지막 박스 개봉 시",avg:"1박스",u:false},
+  {id:11,z:"tea",name:"동의한재 장미꽃",hint:"1/3봉 이하 · 꽃 상태 확인 필수",avg:"1봉",u:false},
+  {id:12,z:"tea",name:"소사 로즈 워터",hint:"1개(미개봉) 이하",avg:"1개",u:false},
+  {id:13,z:"tea",name:"블루콘플라워 100g",hint:"1/3봉 이하",avg:"1봉",u:false},
+  {id:14,z:"tea",name:"바닐라빈 250g",hint:"1봉(미개봉) 이하",avg:"1봉",u:false},
+  {id:15,z:"tea",name:"복음자리 유자청",hint:"마지막 청 개봉 시",avg:"1봉",u:false},
+  {id:16,z:"tea",name:"엽서 비닐봉투",hint:"1묶음(일주일분) 이하",avg:"3묶음",u:false},
+  {id:17,z:"bak_cold",name:"매일 생크림",hint:"베이커리 담당자 확인 후",avg:"-",u:false},
+  {id:18,z:"bak_cold",name:"오틀리 바리스타",hint:"6팩 이하",avg:"1박스",u:false},
+  {id:19,z:"bak_cold",name:"바리스타즈 휘핑크림",hint:"5통 이하",avg:"1박스",u:false},
+  {id:20,z:"bak_cold",name:"마라시노 체리",hint:"1.5통 남았을 때",avg:"1통",u:false},
+  {id:21,z:"bak_cold",name:"선인 초콜릿청크",hint:"1.5봉 남았을 때",avg:"1봉",u:false},
+  {id:22,z:"bak_cold",name:"다크초코컬",hint:"마지막 통 개봉 시",avg:"1통",u:true},
+  {id:23,z:"bak_cold",name:"냉동 크렌베리",hint:"1봉 남았을 때",avg:"1봉",u:false},
+  {id:24,z:"bak_cold",name:"냉동 애플망고",hint:"3봉(미개봉) 이하",avg:"2~4봉",u:false},
+  {id:25,z:"bak_cold",name:"냉동 딸기",hint:"3봉(미개봉) 이하",avg:"2~5봉",u:false},
+  {id:26,z:"bak_dry",name:"사탕수수원당 3kg",hint:"2개(미개봉) 이하",avg:"2봉",u:false},
+  {id:27,z:"bak_dry",name:"기라델리 초콜렛소스",hint:"1개(미개봉) 이하",avg:"1개",u:true},
+  {id:28,z:"bak_dry",name:"밀크쉐이크 파우더",hint:"2봉(미개봉) 이하",avg:"1~2봉",u:false},
+  {id:29,z:"bak_dry",name:"슈크림라떼 파우더",hint:"1.5봉 남았을 때",avg:"1봉",u:false},
+  {id:30,z:"bak_dry",name:"그라데이션 파우더",hint:"1봉 남았을 때",avg:"1봉",u:false},
+  {id:31,z:"bak_dry",name:"발로나 파우더",hint:"1.5봉 남았을 때",avg:"1봉",u:false},
+  {id:32,z:"bak_dry",name:"크리스탈 슈가",hint:"마지막 봉 개봉 시",avg:"1봉",u:false},
+  {id:33,z:"storage",name:"냅킨",hint:"1박스 이하",avg:"3박스",u:true},
+  {id:34,z:"storage",name:"물티슈",hint:"50개(1묶음) 이하",avg:"2묶음",u:false},
+  {id:35,z:"storage",name:"플라스틱 포크",hint:"50개(2묶음) 이하",avg:"3묶음",u:false},
+  {id:36,z:"storage",name:"플라스틱 나이프",hint:"10묶음 이하",avg:"10~20묶음",u:false},
+  {id:37,z:"storage",name:"빨대",hint:"5봉 이하",avg:"10봉",u:false},
+  {id:38,z:"storage",name:"스무디 빨대",hint:"4봉 이하",avg:"2봉",u:false},
+  {id:39,z:"storage",name:"컬러 빨대",hint:"각 컬러 소진 시",avg:"1봉씩",u:false},
+  {id:40,z:"storage",name:"성량 100EA",hint:"4박스 이하",avg:"5박스",u:false},
+  {id:41,z:"storage",name:"10살 초",hint:"2박스 이하",avg:"4박스",u:false},
+  {id:42,z:"storage",name:"1살 초",hint:"2박스 이하",avg:"5박스",u:false},
+  {id:43,z:"storage",name:"숫자 초",hint:"각 숫자 1봉 남았을 때",avg:"3봉",u:false},
+  {id:44,z:"storage",name:"테이블 초",hint:"10묶음 이하",avg:"-",u:false},
+  {id:45,z:"storage",name:"초 비닐봉투",hint:"1묶음(일주일분) 이하",avg:"3묶음",u:false},
+  {id:46,z:"storage",name:"도일리",hint:"마지막 개봉 시",avg:"2봉",u:false},
+  {id:47,z:"storage",name:"케이크 유산지",hint:"1봉 이하",avg:"3봉",u:false},
+  {id:48,z:"storage",name:"케이크 텍",hint:"2주치 분량 이하",avg:"-",u:false},
+  {id:49,z:"storage",name:"케이크 텍 금줄",hint:"2주치 분량 이하",avg:"-",u:false},
+  {id:50,z:"storage",name:"소주컵(포장용)",hint:"3일치 분량 이하",avg:"1박스",u:false},
+  {id:51,z:"storage",name:"10oz 단열 컵홀더",hint:"마지막 박스 개봉 시",avg:"2박스",u:false},
+  {id:52,z:"storage",name:"넛박스 비닐봉투",hint:"1묶음(일주일분) 이하",avg:"2묶음",u:false},
+  {id:53,z:"storage",name:"커피클린(빨강)",hint:"반통 이하",avg:"1통",u:false},
+  {id:54,z:"storage",name:"그라인더 클리너(노랑)",hint:"반통 이하",avg:"1통",u:false},
+  {id:55,z:"storage",name:"구연산 1kg",hint:"반봉 이하",avg:"1봉",u:false},
+  {id:56,z:"storage",name:"미니 비닐봉투",hint:"2묶음 이하",avg:"5묶음",u:true},
+  {id:57,z:"storage",name:"1호 비닐봉투",hint:"2묶음 이하",avg:"4묶음",u:false},
+  {id:58,z:"storage",name:"2호 비닐봉투",hint:"반봉 이하",avg:"1묶음",u:false},
+  {id:59,z:"storage",name:"아이스팩(대)",hint:"1박스 이하",avg:"2박스",u:false},
+  {id:60,z:"storage",name:"아이스팩(소)",hint:"유동 발주",avg:"1박스",u:false},
+  {id:61,z:"storage",name:"10oz 종이컵 무지",hint:"4줄 이하",avg:"1박스",u:false},
+  {id:62,z:"storage",name:"10oz 뚜껑",hint:"4줄 이하",avg:"1박스",u:false},
+  {id:63,z:"storage",name:"16oz 종이컵 무지",hint:"4줄 이하",avg:"1박스",u:false},
+  {id:64,z:"storage",name:"16oz 뚜껑",hint:"4줄 이하",avg:"1박스",u:false},
+  {id:65,z:"storage",name:"미니 보냉백",hint:"10개 이하",avg:"1박스",u:false},
+  {id:66,z:"sk",name:"10oz 종이컵 인쇄",hint:"2박스 이하",avg:"3박스",u:true},
+  {id:67,z:"sk",name:"16oz 종이컵 인쇄",hint:"2박스 이하",avg:"3박스",u:true},
+  {id:68,z:"sk",name:"조각케이크박스 1구(핑크)",hint:"5박스 이하",avg:"5박스",u:true},
+  {id:69,z:"sk",name:"조각케이크박스 2구(민트)",hint:"5박스 이하",avg:"5박스",u:true},
+  {id:70,z:"sk",name:"미니 홀케이크박스",hint:"5묶음 이하",avg:"5묶음",u:true},
+  {id:71,z:"sk",name:"1호 홀케이크박스(핑크)",hint:"20묶음 이하",avg:"20묶음",u:true},
+  {id:72,z:"sk",name:"2호 홀케이크박스(민트)",hint:"7묶음 이하",avg:"7묶음",u:true},
+  {id:73,z:"sk",name:"미니 홀케이크 쇼핑백",hint:"3박스 이하",avg:"3박스",u:true},
+  {id:74,z:"sk",name:"1호 홀케이크 쇼핑백(핑크)",hint:"10박스 이하",avg:"10박스",u:true},
+  {id:75,z:"sk",name:"2호 홀케이크 쇼핑백(민트)",hint:"5박스 이하",avg:"5박스",u:true},
+  {id:76,z:"sk",name:"1호 보냉백",hint:"5박스 이하 (여름철 7박스)",avg:"5~7박스",u:true},
+];
+
+let st={};
+ITEMS.forEach(i=>st[i.id]={s:null,q:1});
+let az="all",su=false,sn=false,pressTimer=null;
+
+function today(){
+  const d=new Date(),w=["일","월","화","수","목","금","토"];
+  return `${d.getMonth()+1}/${d.getDate()}(${w[d.getDay()]})`;
+}
+
+function getUnit(avg){
+  if(avg==="-") return "개";
+  const m=avg.match(/[가-힣]+/g);
+  return m?m[m.length-1]:"개";
+}
+
+function needCnt(z){
+  return ITEMS.filter(i=>(z==="all"||i.z===z)&&st[i.id].s==="need").length;
+}
+
+function sync(){
+  const need=ITEMS.filter(i=>st[i.id].s==="need").length;
+  const ok=ITEMS.filter(i=>st[i.id].s==="ok").length;
+  document.getElementById("sN").textContent=need;
+  document.getElementById("sO").textContent=ok;
+  document.getElementById("sL").textContent=ITEMS.length-need-ok;
+  const pct=Math.round((need+ok)/ITEMS.length*100);
+  document.getElementById("pf").style.width=pct+"%";
+  document.getElementById("pl").textContent=`${need+ok} / ${ITEMS.length}`;
+  document.getElementById("cta").disabled=need===0;
+}
+
+function tap(id){
+  const s=st[id];
+  if(s.s==="need"){s.s=null;s.q=1;}
+  else if(s.s==="ok"){s.s="need";s.q=1;}
+  else{s.s="need";}
+  sync();renderChips();renderContent();
+}
+
+function longPress(id){
+  const s=st[id];
+  s.s=s.s==="ok"?null:"ok";
+  s.q=1;
+  if(navigator.vibrate) navigator.vibrate(30);
+  sync();renderChips();renderContent();
+}
+
+function changeQ(e,id,d){
+  e.stopPropagation();
+  st[id].q=Math.max(1,st[id].q+d);
+  const el=document.getElementById("qv"+id);
+  if(el) el.textContent=st[id].q;
+}
+
+function getFilt(){
+  return ITEMS.filter(i=>{
+    if(az!=="all"&&i.z!==az) return false;
+    if(su&&!i.u) return false;
+    if(sn&&st[i.id].s!=="need") return false;
+    return true;
+  });
+}
+
+function renderChips(){
+  const nc=needCnt("all");
+  document.getElementById("chips").innerHTML=
+    `<span class="chip${az==="all"?" on":""}" onclick="setZ('all')">전체${nc>0?`<span class="nc">${nc}</span>`:""}</span>`+
+    ZONES.map(z=>{
+      const n=needCnt(z.id);
+      return `<span class="chip${az===z.id?" on":""}" onclick="setZ('${z.id}')">${z.label}${n>0?`<span class="nc">${n}</span>`:""}</span>`;
+    }).join("")+
+    `<span class="chip${su?" alert-on":""}" onclick="toggleSU()">긴급</span>`+
+    `<span class="chip${sn?" alert-on":""}" onclick="toggleSN()">발주만</span>`+
+    `<span class="chip" onclick="doReset()">초기화</span>`;
+}
+
+function setZ(z){az=z;renderChips();renderContent();}
+function toggleSU(){su=!su;renderChips();renderContent();}
+function toggleSN(){sn=!sn;renderChips();renderContent();}
+function doReset(){ITEMS.forEach(i=>st[i.id]={s:null,q:1});su=false;sn=false;sync();renderChips();renderContent();}
+
+function renderContent(){
+  const items=getFilt();
+  const el=document.getElementById("content");
+  if(!items.length){el.innerHTML=`<div class="empty">해당 품목 없음</div>`;return;}
+  const groups={};
+  items.forEach(i=>{if(!groups[i.z])groups[i.z]=[];groups[i.z].push(i);});
+  el.innerHTML=ZONES.filter(z=>groups[z.id]).map(z=>{
+    const its=groups[z.id];
+    const nc=its.filter(i=>st[i.id].s==="need").length;
+    return `<div class="sec">
+      ${az==="all"?`<div class="sec-head">
+        <span class="sec-title">${z.label}</span>
+        <span>${nc>0?`<span class="sec-need">발주 ${nc}&nbsp;</span>`:""}<span class="sec-meta">${its.length}개</span></span>
+      </div>`:""}
+      ${its.map(i=>{
+        const s=st[i.id];
+        const isNeed=s.s==="need";
+        const isOk=s.s==="ok";
+        return `<div class="row${isOk?" is-ok":""}" id="row${i.id}"
+          onmousedown="startPress(${i.id})" onmouseup="endPress(${i.id})" onmouseleave="cancelPress()"
+          ontouchstart="startPress(${i.id})" ontouchend="endPress(${i.id})" ontouchcancel="cancelPress()">
+          <div class="row-main">
+            <div class="row-info">
+              <div class="row-name${i.u?" urg":""}">${i.name}${i.u?`<span class="urg-badge">긴급</span>`:""}</div>
+              <div class="row-hint">${i.hint}${i.avg!=="-"?` · 평균 ${i.avg}`:""}</div>
+            </div>
+            <div class="dot${isNeed?" need":isOk?" ok":""}"></div>
+          </div>
+          <div class="qty-expand${isNeed?" open":""}">
+            <div class="qty-inner">
+              <span class="qty-avg">평균 ${i.avg}</span>
+              <div class="qty-ctrl">
+                <button class="qty-btn" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="changeQ(event,${i.id},-1)">−</button>
+                <span class="qty-val" id="qv${i.id}">${s.q}</span>
+                <button class="qty-btn" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="changeQ(event,${i.id},1)">+</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }).join("")}
+    </div>`;
+  }).join("");
+}
+
+function startPress(id){
+  cancelPress();
+  pressTimer=setTimeout(()=>{pressTimer=null;longPress(id);},500);
+}
+function endPress(id){
+  if(pressTimer){clearTimeout(pressTimer);pressTimer=null;tap(id);}
+}
+function cancelPress(){if(pressTimer){clearTimeout(pressTimer);pressTimer=null;}}
+
+function buildMsg(){
+  const need=ITEMS.filter(i=>st[i.id].s==="need");
+  let msg=`[La Terrasse 발주 요청]\n${today()}\n`;
+  need.forEach(i=>msg+=`\n· ${i.name} ${st[i.id].q}${getUnit(i.avg)}`);
+  msg+=`\n\n총 ${need.length}개 품목 발주 확인 부탁드립니다.`;
+  return msg;
+}
+
+function openSheet(){
+  document.getElementById("msg").textContent=buildMsg();
+  document.getElementById("cpBtn").textContent="복사";
+  document.getElementById("ov").classList.add("open");
+}
+function closeSheet(){document.getElementById("ov").classList.remove("open");}
+function doCopy(){
+  navigator.clipboard.writeText(document.getElementById("msg").textContent).then(()=>{
+    const b=document.getElementById("cpBtn");
+    b.textContent="복사됨!";
+    setTimeout(()=>b.textContent="복사",1500);
+  });
+}
+function doKakao(){
+  const t=document.getElementById("msg").textContent;
+  window.location.href=`kakaotalk://msg/send?text=${encodeURIComponent(t)}`;
+  setTimeout(()=>navigator.clipboard.writeText(t),400);
+}
+
+document.getElementById("sub").textContent="본점 · 웨스턴돔 · "+today();
+renderChips();renderContent();sync();
+</script>
+</body>
+</html>
