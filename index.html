@@ -5,144 +5,190 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="발주체크">
+<meta name="apple-mobile-web-app-title" content="발주체크 본점">
 <meta name="theme-color" content="#ffffff">
-<title>La Terrasse 발주 체크</title>
+<title>La Terrasse 본점 발주 체크</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;}
-  :root{
-    --bg:#ffffff;--bg2:#f7f7f5;--bg3:#f0f0ed;
-    --txt:#1a1a1a;--txt2:#888;--txt3:#bbb;
-    --border:#e8e8e5;--border2:#d0d0cc;
-    --purple:#534AB7;--purple-light:#EEEDFE;
-    --red:#E24B4A;--red-light:#FCEBEB;--red-dark:#A32D2D;
-    --green:#639922;--green-light:#EAF3DE;
-    --r-md:8px;--r-lg:14px;--r-xl:20px;
-  }
-  html,body{height:100%;background:var(--bg2);font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;}
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#fff;--bg2:#f7f7f5;--bg3:#f0f0ed;
+  --txt:#1a1a1a;--txt2:#888;--txt3:#bbb;
+  --border:#e8e8e5;--border2:#d0d0cc;
+  --purple:#534AB7;
+  --red:#E24B4A;--red-light:#FCEBEB;--red-dark:#A32D2D;
+  --green:#639922;
+  --r-md:8px;--r-lg:14px;--r-xl:20px;
+}
+html,body{height:100%;background:var(--bg2);font-family:-apple-system,'SF Pro Display','Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:430px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
 
-  .wrap{max-width:430px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
+/* TOPBAR */
+.topbar{background:var(--bg);padding:16px 20px 0;border-bottom:0.5px solid var(--border);}
+.topbar-title{font-size:20px;font-weight:600;color:var(--txt);letter-spacing:-0.4px;}
+.topbar-sub{font-size:13px;color:var(--txt2);margin-top:3px;}
+.prog-row{display:flex;align-items:center;gap:10px;padding:12px 0 10px;}
+.prog-bar{flex:1;height:3px;background:var(--bg3);border-radius:2px;}
+.prog-fill{height:3px;border-radius:2px;background:var(--purple);transition:width 0.3s;}
+.prog-lbl{font-size:12px;color:var(--txt2);white-space:nowrap;}
 
-  /* TOP BAR */
-  .topbar{background:var(--bg);padding:16px 20px 0;border-bottom:0.5px solid var(--border);}
-  .topbar-title{font-size:20px;font-weight:600;color:var(--txt);letter-spacing:-0.4px;}
-  .topbar-sub{font-size:13px;color:var(--txt2);margin-top:3px;}
-  .prog-row{display:flex;align-items:center;gap:10px;padding:14px 0 12px;}
-  .prog-bar{flex:1;height:3px;background:var(--bg3);border-radius:2px;}
-  .prog-fill{height:3px;border-radius:2px;background:var(--purple);transition:width 0.3s ease;}
-  .prog-lbl{font-size:12px;color:var(--txt2);white-space:nowrap;font-variant-numeric:tabular-nums;}
+/* TAB BAR */
+.tab-bar{display:flex;background:var(--bg);border-bottom:0.5px solid var(--border);}
+.tbtab{flex:1;padding:10px 0;text-align:center;font-size:13px;color:var(--txt2);cursor:pointer;border-bottom:2px solid transparent;}
+.tbtab.on{color:var(--purple);border-bottom-color:var(--purple);font-weight:500;}
 
-  /* STAT */
-  .stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--border);gap:0.5px;}
-  .stat-cell{background:var(--bg);padding:14px 0;text-align:center;}
-  .stat-n{font-size:26px;font-weight:600;color:var(--txt);letter-spacing:-0.5px;font-variant-numeric:tabular-nums;}
-  .stat-n.red{color:var(--red);}
-  .stat-l{font-size:11px;color:var(--txt2);margin-top:3px;}
+/* STAT */
+.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--border);gap:0.5px;}
+.stat-cell{background:var(--bg);padding:13px 0;text-align:center;}
+.stat-n{font-size:24px;font-weight:600;color:var(--txt);letter-spacing:-0.5px;}
+.stat-n.red{color:var(--red);}
+.stat-l{font-size:11px;color:var(--txt2);margin-top:2px;}
 
-  /* CHIPS */
-  .chips{background:var(--bg);padding:10px 16px;display:flex;gap:6px;overflow-x:auto;border-bottom:0.5px solid var(--border);}
-  .chips::-webkit-scrollbar{display:none;}
-  .chip{flex-shrink:0;font-size:13px;padding:6px 14px;border-radius:20px;border:0.5px solid var(--border2);background:transparent;color:var(--txt2);cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;}
-  .chip.on{background:var(--purple);color:#fff;border-color:var(--purple);}
-  .chip.alert-on{background:var(--red-light);color:var(--red-dark);border-color:var(--red);}
-  .nc{display:inline-block;padding:0 5px;font-size:11px;border-radius:10px;margin-left:3px;}
-  .chip.on .nc{background:rgba(255,255,255,0.25);color:#fff;}
-  .chip:not(.on) .nc{background:var(--red-light);color:var(--red-dark);}
+/* CHIPS */
+.chips{background:var(--bg);padding:10px 16px;display:flex;gap:6px;overflow-x:auto;border-bottom:0.5px solid var(--border);}
+.chips::-webkit-scrollbar{display:none;}
+.chip{flex-shrink:0;font-size:12px;padding:5px 12px;border-radius:20px;border:0.5px solid var(--border2);background:transparent;color:var(--txt2);cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;}
+.chip.on{background:var(--purple);color:#fff;border-color:var(--purple);}
+.chip.alert-on{background:var(--red-light);color:var(--red-dark);border-color:var(--red);}
+.nc{display:inline-block;padding:0 5px;font-size:11px;border-radius:10px;margin-left:2px;}
+.chip.on .nc{background:rgba(255,255,255,0.25);color:#fff;}
+.chip:not(.on) .nc{background:var(--red-light);color:var(--red-dark);}
 
-  /* CONTENT */
-  .content{flex:1;padding-bottom:120px;}
+/* CONTENT PANELS */
+.panel{display:none;flex:1;padding-bottom:120px;}
+.panel.on{display:block;}
 
-  .sec{margin-top:8px;}
-  .sec-head{display:flex;align-items:center;justify-content:space-between;padding:8px 20px 4px;}
-  .sec-title{font-size:12px;font-weight:600;color:var(--txt2);letter-spacing:0.06em;text-transform:uppercase;}
-  .sec-meta{font-size:12px;color:var(--txt2);}
-  .sec-need{color:var(--red);font-weight:600;}
+/* CHECK ROWS */
+.sec{margin-top:8px;}
+.sec-head{display:flex;align-items:center;justify-content:space-between;padding:8px 20px 4px;}
+.sec-title{font-size:12px;font-weight:600;color:var(--txt2);letter-spacing:0.05em;text-transform:uppercase;}
+.sec-meta{font-size:12px;color:var(--txt2);}
+.sec-need{color:var(--red);font-weight:600;}
 
-  /* ROW */
-  .row{background:var(--bg);border-bottom:0.5px solid var(--border);padding:0 20px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background 0.08s;}
-  .row:active{background:var(--bg2);}
-  .row.is-ok .row-main{opacity:0.32;}
-  .row-main{display:flex;align-items:center;gap:14px;padding:16px 0 14px;}
-  .row-info{flex:1;min-width:0;}
-  .row-name{font-size:15px;font-weight:500;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-0.2px;}
-  .row-name.urg{color:var(--red-dark);}
-  .urg-badge{font-size:11px;color:var(--red);font-weight:500;margin-left:4px;}
-  .row-hint{font-size:12px;color:var(--txt2);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.row{background:var(--bg);border-bottom:0.5px solid var(--border);padding:0 20px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background 0.08s;}
+.row:active{background:var(--bg2);}
+.row.is-ok .row-main{opacity:0.32;}
+.row-main{display:flex;align-items:center;gap:14px;padding:15px 0 13px;}
+.row-info{flex:1;min-width:0;}
+.row-name{font-size:15px;font-weight:500;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.row-hint{font-size:12px;color:var(--txt2);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dot{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border2);background:transparent;flex-shrink:0;transition:background 0.15s,border-color 0.15s;position:relative;}
+.dot.need{background:var(--red);border-color:var(--red);}
+.dot.ok{background:var(--green);border-color:var(--green);}
+.dot.ok::after{content:"";position:absolute;left:7px;top:4px;width:6px;height:10px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg);}
 
-  /* DOT */
-  .dot{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border2);background:transparent;flex-shrink:0;transition:background 0.15s,border-color 0.15s;position:relative;}
-  .dot.need{background:var(--red);border-color:var(--red);}
-  .dot.ok{background:var(--green);border-color:var(--green);}
-  .dot.ok::after{content:"";position:absolute;left:7px;top:4px;width:6px;height:10px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg);}
+/* QTY */
+.qty-expand{overflow:hidden;max-height:0;transition:max-height 0.2s ease;}
+.qty-expand.open{max-height:64px;}
+.qty-inner{display:flex;align-items:center;padding:0 0 14px;}
+.qty-avg{font-size:12px;color:var(--txt2);}
+.qty-ctrl{display:flex;align-items:center;gap:12px;margin-left:auto;}
+.qty-btn{width:34px;height:34px;border-radius:50%;border:0.5px solid var(--border2);background:var(--bg2);color:var(--txt);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;}
+.qty-btn:active{transform:scale(0.88);}
+.qty-val{font-size:17px;font-weight:600;color:var(--purple);min-width:26px;text-align:center;}
 
-  /* QTY EXPAND */
-  .qty-expand{overflow:hidden;max-height:0;transition:max-height 0.2s ease;}
-  .qty-expand.open{max-height:64px;}
-  .qty-inner{display:flex;align-items:center;padding:0 0 16px;}
-  .qty-avg{font-size:12px;color:var(--txt2);}
-  .qty-ctrl{display:flex;align-items:center;gap:12px;margin-left:auto;}
-  .qty-btn{width:34px;height:34px;border-radius:50%;border:0.5px solid var(--border2);background:var(--bg2);color:var(--txt);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;-webkit-tap-highlight-color:transparent;}
-  .qty-btn:active{transform:scale(0.88);background:var(--bg3);}
-  .qty-val{font-size:17px;font-weight:600;color:var(--purple);min-width:26px;text-align:center;font-variant-numeric:tabular-nums;}
+/* ADMIN PANEL */
+.admin-zone-tabs{display:flex;gap:6px;padding:12px 16px;overflow-x:auto;background:var(--bg);border-bottom:0.5px solid var(--border);}
+.admin-zone-tabs::-webkit-scrollbar{display:none;}
+.azt{flex-shrink:0;font-size:12px;padding:5px 12px;border-radius:20px;border:0.5px solid var(--border2);background:transparent;color:var(--txt2);cursor:pointer;white-space:nowrap;}
+.azt.on{background:var(--purple);color:#fff;border-color:var(--purple);}
 
-  /* BOTTOM */
-  .bottom{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:0.5px solid var(--border);padding:10px 16px 28px;max-width:430px;margin:0 auto;}
-  .hint-row{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:8px;}
-  .hint-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2);}
-  .hint-dot{width:10px;height:10px;border-radius:50%;}
-  .hint-txt{font-size:11px;color:var(--txt3);text-align:center;margin-bottom:10px;}
-  .cta{width:100%;padding:16px;font-size:16px;font-weight:600;border:none;border-radius:var(--r-lg);background:var(--purple);color:#fff;cursor:pointer;letter-spacing:-0.2px;-webkit-tap-highlight-color:transparent;}
-  .cta:disabled{background:var(--bg3);color:var(--txt3);}
-  .cta:active{opacity:0.82;}
+.admin-add-bar{background:var(--bg);border-bottom:0.5px solid var(--border);padding:12px 16px;display:flex;gap:8px;}
+.admin-add-bar input{flex:1;font-size:14px;padding:9px 12px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--bg2);color:var(--txt);outline:none;}
+.admin-add-bar input:focus{border-color:var(--purple);}
+.add-btn{padding:9px 16px;border-radius:var(--r-md);border:none;background:var(--purple);color:#fff;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;}
 
-  /* SHEET */
-  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:100;align-items:flex-end;justify-content:center;}
-  .overlay.open{display:flex;}
-  .sheet{background:var(--bg);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:20px 20px 36px;width:100%;max-width:430px;max-height:76vh;overflow-y:auto;}
-  .handle{width:38px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px;}
-  .sheet-title{font-size:17px;font-weight:600;color:var(--txt);margin-bottom:14px;letter-spacing:-0.3px;}
-  .msg-box{font-size:14px;line-height:2.1;white-space:pre-wrap;color:var(--txt);background:var(--bg2);border-radius:var(--r-lg);padding:16px;margin-bottom:14px;}
-  .sheet-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-  .sb{padding:14px;border-radius:var(--r-md);border:0.5px solid var(--border2);background:var(--bg2);color:var(--txt);font-size:14px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;}
-  .sb.primary{background:var(--purple);color:#fff;border:none;}
-  .sb:active{opacity:0.78;}
-  .sb-full{width:100%;margin-top:8px;}
+.admin-item{background:var(--bg);border-bottom:0.5px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:10px;}
+.admin-item-info{flex:1;min-width:0;}
+.admin-item-name{font-size:14px;font-weight:500;color:var(--txt);}
+.admin-item-hint{font-size:12px;color:var(--txt2);margin-top:2px;}
+.admin-actions{display:flex;gap:6px;flex-shrink:0;}
+.a-btn{padding:6px 12px;border-radius:var(--r-md);border:0.5px solid var(--border2);background:var(--bg2);color:var(--txt2);font-size:12px;cursor:pointer;}
+.a-btn.del{color:var(--red);border-color:var(--red-light);}
 
-  /* EMPTY */
-  .empty{padding:60px 20px;text-align:center;color:var(--txt2);font-size:14px;}
+/* BOTTOM */
+.bottom{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:0.5px solid var(--border);padding:10px 16px 28px;max-width:430px;margin:0 auto;}
+.hint-row{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:6px;}
+.hint-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2);}
+.hint-dot{width:10px;height:10px;border-radius:50%;}
+.hint-txt{font-size:11px;color:var(--txt3);text-align:center;margin-bottom:10px;}
+.cta{width:100%;padding:15px;font-size:15px;font-weight:600;border:none;border-radius:var(--r-lg);background:var(--purple);color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.cta:disabled{background:var(--bg3);color:var(--txt3);}
+.cta:active{opacity:0.82;}
+.admin-bottom{background:var(--bg);padding:12px 16px 28px;}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:flex-end;justify-content:center;}
+.overlay.open{display:flex;}
+.sheet{background:var(--bg);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:20px 20px 36px;width:100%;max-width:430px;max-height:76vh;overflow-y:auto;}
+.handle{width:38px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 18px;}
+.sheet-title{font-size:17px;font-weight:600;color:var(--txt);margin-bottom:14px;}
+.msg-box{font-size:14px;line-height:2.0;white-space:pre-wrap;color:var(--txt);background:var(--bg2);border-radius:var(--r-lg);padding:16px;margin-bottom:14px;}
+.sheet-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.sb{padding:14px;border-radius:var(--r-md);border:0.5px solid var(--border2);background:var(--bg2);color:var(--txt);font-size:14px;font-weight:500;cursor:pointer;}
+.sb.primary{background:var(--purple);color:#fff;border:none;}
+.sb:active{opacity:0.78;}
+.sb-full{width:100%;margin-top:8px;}
+
+/* EDIT MODAL */
+.edit-sheet{background:var(--bg);border-radius:var(--r-xl) var(--r-xl) 0 0;padding:20px 20px 40px;width:100%;max-width:430px;}
+.edit-sheet label{display:block;font-size:12px;font-weight:500;color:var(--txt2);margin-bottom:5px;margin-top:14px;}
+.edit-sheet input{width:100%;font-size:15px;padding:11px 14px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--bg2);color:var(--txt);outline:none;}
+.edit-sheet input:focus{border-color:var(--purple);}
+.edit-sheet select{width:100%;font-size:15px;padding:11px 14px;border:0.5px solid var(--border2);border-radius:var(--r-md);background:var(--bg2);color:var(--txt);outline:none;}
+.edit-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:20px;}
+.empty{padding:60px 20px;text-align:center;color:var(--txt2);font-size:14px;}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="topbar">
-    <div class="topbar-title">발주 체크</div>
-    <div class="topbar-sub" id="sub"></div>
+    <div class="topbar-title">발주 체크 <span style="font-size:14px;font-weight:400;color:var(--txt2);">본점</span></div>
+    <div class="topbar-sub">La Terrasse · 웨스턴돔</div>
     <div class="prog-row">
       <div class="prog-bar"><div class="prog-fill" id="pf" style="width:0%"></div></div>
       <div class="prog-lbl" id="pl">0 / 0</div>
     </div>
   </div>
 
-  <div class="stat-row">
-    <div class="stat-cell"><div class="stat-n red" id="sN">0</div><div class="stat-l">발주 필요</div></div>
-    <div class="stat-cell"><div class="stat-n" id="sO">0</div><div class="stat-l">확인 완료</div></div>
-    <div class="stat-cell"><div class="stat-n" id="sL">0</div><div class="stat-l">미확인</div></div>
+  <div class="tab-bar">
+    <div class="tbtab on" onclick="switchTab('check')">체크</div>
+    <div class="tbtab" onclick="switchTab('admin')">품목 관리</div>
   </div>
 
-  <div class="chips" id="chips"></div>
-  <div class="content" id="content"></div>
-
-  <div class="bottom">
-    <div class="hint-row">
-      <div class="hint-item"><div class="hint-dot" style="border:1.5px solid #bbb;"></div>미확인</div>
-      <div class="hint-item"><div class="hint-dot" style="background:var(--red);"></div>발주 필요</div>
-      <div class="hint-item"><div class="hint-dot" style="background:var(--green);"></div>확인 완료</div>
+  <!-- CHECK PANEL -->
+  <div class="panel on" id="panel-check">
+    <div class="stat-row">
+      <div class="stat-cell"><div class="stat-n red" id="sN">0</div><div class="stat-l">발주 필요</div></div>
+      <div class="stat-cell"><div class="stat-n" id="sO">0</div><div class="stat-l">확인 완료</div></div>
+      <div class="stat-cell"><div class="stat-n" id="sL">0</div><div class="stat-l">미확인</div></div>
     </div>
-    <div class="hint-txt">탭 → 발주 필요 &nbsp;·&nbsp; 길게 누르기 → 확인 완료</div>
-    <button class="cta" id="cta" disabled onclick="openSheet()">발주 목록 공유</button>
+    <div class="chips" id="chips"></div>
+    <div id="content"></div>
+    <div class="bottom">
+      <div class="hint-row">
+        <div class="hint-item"><div class="hint-dot" style="border:1.5px solid #bbb;"></div>미확인</div>
+        <div class="hint-item"><div class="hint-dot" style="background:var(--red);"></div>발주 필요</div>
+        <div class="hint-item"><div class="hint-dot" style="background:var(--green);"></div>확인 완료</div>
+      </div>
+      <div class="hint-txt">탭 → 발주 필요 &nbsp;·&nbsp; 길게 누르기 → 확인 완료</div>
+      <button class="cta" id="cta" disabled onclick="openSheet()">발주 목록 공유</button>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="panel" id="panel-admin">
+    <div class="admin-zone-tabs" id="adminZoneTabs"></div>
+    <div class="admin-add-bar">
+      <input id="newName" placeholder="품목명" />
+      <input id="newHint" placeholder="발주 기준" style="flex:1.2"/>
+      <button class="add-btn" onclick="addItem()">추가</button>
+    </div>
+    <div id="adminList"></div>
+    <div class="admin-bottom"></div>
   </div>
 </div>
 
+<!-- SHARE SHEET -->
 <div class="overlay" id="ov" onclick="if(event.target===this)closeSheet()">
   <div class="sheet">
     <div class="handle"></div>
@@ -156,8 +202,28 @@
   </div>
 </div>
 
+<!-- EDIT SHEET -->
+<div class="overlay" id="editOv" onclick="if(event.target===this)closeEdit()">
+  <div class="edit-sheet">
+    <div class="handle"></div>
+    <div class="sheet-title">품목 수정</div>
+    <label>품목명</label>
+    <input id="editName" />
+    <label>발주 기준</label>
+    <input id="editHint" />
+    <label>평균 발주량</label>
+    <input id="editAvg" />
+    <label>구역</label>
+    <select id="editZone"></select>
+    <div class="edit-actions">
+      <button class="sb" onclick="closeEdit()">취소</button>
+      <button class="sb primary" onclick="saveEdit()">저장</button>
+    </div>
+  </div>
+</div>
+
 <script>
-const ZONES=[
+const DEFAULT_ZONES=[
   {id:"bak_kitchen",label:"베이커리 주방"},
   {id:"bak_cold",label:"베이커리 냉장·냉동"},
   {id:"bak_order",label:"베이커리 주방팀장님께 주문"},
@@ -171,8 +237,7 @@ const ZONES=[
   {id:"from_mandon",label:"만돈에서 가져올 품목"},
 ];
 
-const ITEMS=[
-  // 베이커리 주방
+const DEFAULT_ITEMS=[
   {id:1,z:"bak_kitchen",name:"사탕수수원당 3kg",hint:"2개(미개봉) 이하",avg:"2봉",u:false},
   {id:2,z:"bak_kitchen",name:"기라델리 초콜렛 2.74kg",hint:"1개(미개봉) 이하",avg:"1개",u:true},
   {id:3,z:"bak_kitchen",name:"밀크쉐이크 파우더 1kg",hint:"2봉(미개봉) 이하",avg:"1~2봉",u:false},
@@ -181,33 +246,27 @@ const ITEMS=[
   {id:6,z:"bak_kitchen",name:"블루콘플라워 100g",hint:"1/3봉 이하",avg:"1봉",u:false},
   {id:7,z:"bak_kitchen",name:"리뷰쿠키",hint:"소진 시",avg:"-",u:false},
   {id:8,z:"bak_kitchen",name:"컬러빨대",hint:"각 컬러 소진 시",avg:"1봉씩",u:false},
-  // 베이커리 냉장·냉동
   {id:9,z:"bak_cold",name:"바닐라빈 250g",hint:"1봉(미개봉) 이하",avg:"1봉",u:false},
   {id:10,z:"bak_cold",name:"선인 다크초코청크",hint:"1.5봉 남았을 때",avg:"1봉",u:false},
   {id:11,z:"bak_cold",name:"냉동 크렌베리",hint:"1봉 남았을 때",avg:"1봉",u:false},
   {id:12,z:"bak_cold",name:"냉동 애플망고",hint:"3봉(미개봉) 이하",avg:"2~4봉",u:false},
   {id:13,z:"bak_cold",name:"냉동 딸기",hint:"3봉(미개봉) 이하",avg:"2~5봉",u:false},
   {id:14,z:"bak_cold",name:"아이스팩(소)",hint:"유동 발주",avg:"1박스",u:false},
-  // 베이커리 주방팀장님께 주문
   {id:15,z:"bak_order",name:"다크초코컬(냉동보관)",hint:"마지막 통 개봉 시",avg:"1통",u:true},
   {id:16,z:"bak_order",name:"바리스타즈 휘핑크림",hint:"5통 이하",avg:"1박스",u:false},
   {id:17,z:"bak_order",name:"마라시노 체리(꼭지O)",hint:"1.5통 남았을 때",avg:"1통",u:false},
   {id:18,z:"bak_order",name:"크리스탈 슈가",hint:"마지막 봉 개봉 시",avg:"1봉",u:false},
   {id:19,z:"bak_order",name:"발로나 파우더",hint:"1.5봉 남았을 때",avg:"1봉",u:false},
-  // 만돈 점장님께 주문
   {id:20,z:"mandon_order",name:"영수증용지",hint:"6줄 이하",avg:"-",u:false},
-  // 홀 냉장·냉동
   {id:21,z:"hall_cold",name:"유자차",hint:"마지막 청 개봉 시",avg:"1봉",u:false},
   {id:22,z:"hall_cold",name:"엑설런트 오리지널 800ml",hint:"3팩(미개봉) 이하",avg:"4팩",u:false},
   {id:23,z:"hall_cold",name:"민트잎",hint:"3일치 쓸 양 없을 시",avg:"1~2팩",u:false},
-  // 홀 선반 및 티장
   {id:24,z:"hall_shelf",name:"애플티(파리의 축제)",hint:"마지막 티 개봉 시",avg:"1박스",u:false},
   {id:25,z:"hall_shelf",name:"아쌈티 1kg",hint:"1봉 남았을 때",avg:"1~2봉",u:false},
   {id:26,z:"hall_shelf",name:"얼그레이티 1kg",hint:"1봉+반 남았을 때",avg:"2봉",u:false},
   {id:27,z:"hall_shelf",name:"라인바싸 190ml",hint:"마지막 박스 개봉 시",avg:"1박스",u:false},
   {id:28,z:"hall_shelf",name:"장미꽃(동의한재) 300g",hint:"1/3봉 이하 · 꽃 상태 확인 필수",avg:"1봉",u:false},
   {id:29,z:"hall_shelf",name:"천연장미꽃향 100g(아쌈로즈용)",hint:"1개(미개봉) 이하",avg:"1개",u:false},
-  // 홀 물품
   {id:30,z:"hall_goods",name:"커피클린(커피머신청소 빨간뚜껑)",hint:"반통 이하",avg:"1통",u:false},
   {id:31,z:"hall_goods",name:"그라인즈 430g(그라인더 클리너 노랑)",hint:"반통 이하",avg:"1통",u:false},
   {id:32,z:"hall_goods",name:"구연산 1kg",hint:"반봉 이하",avg:"1봉",u:false},
@@ -224,7 +283,6 @@ const ITEMS=[
   {id:43,z:"hall_goods",name:"케이크 유산지",hint:"1봉 이하",avg:"3봉",u:false},
   {id:44,z:"hall_goods",name:"모찌용 유산지",hint:"소진 시",avg:"-",u:false},
   {id:45,z:"hall_goods",name:"모찌용 용기",hint:"소진 시",avg:"-",u:false},
-  // 테라스 외부 하얀 박스
   {id:46,z:"storage",name:"아이스팩(대)",hint:"1박스 이하",avg:"2박스",u:false},
   {id:47,z:"storage",name:"물티슈",hint:"50개(1묶음) 이하",avg:"2묶음",u:false},
   {id:48,z:"storage",name:"초비닐봉투(가로7*세로29)",hint:"1묶음(일주일분) 이하",avg:"3묶음",u:false},
@@ -244,7 +302,6 @@ const ITEMS=[
   {id:62,z:"storage",name:"투명 돔 뚜껑",hint:"소진 시",avg:"-",u:false},
   {id:63,z:"storage",name:"10oz 무지",hint:"4줄 이하",avg:"1박스",u:false},
   {id:64,z:"storage",name:"16oz 무지",hint:"4줄 이하",avg:"1박스",u:false},
-  // 외부+엠시티 (한달 전 주문)
   {id:65,z:"sk",name:"냅킨",hint:"1박스 이하",avg:"3박스",u:true},
   {id:66,z:"sk",name:"10oz 인쇄",hint:"2박스 이하",avg:"3박스",u:true},
   {id:67,z:"sk",name:"16oz 인쇄",hint:"2박스 이하",avg:"3박스",u:true},
@@ -257,7 +314,6 @@ const ITEMS=[
   {id:74,z:"sk",name:"1호 홀케이크 쇼핑백(핑크)",hint:"10박스 이하",avg:"10박스",u:true},
   {id:75,z:"sk",name:"2호 홀케이크 쇼핑백(민트)",hint:"5박스 이하",avg:"5박스",u:true},
   {id:76,z:"sk",name:"보냉백 1호(⭐상무님께 주문)",hint:"5박스 이하 (여름철 7박스)",avg:"5~7박스",u:true},
-  // 그외
   {id:77,z:"etc",name:"아메리카노잔 ice",hint:"소진 시",avg:"-",u:false},
   {id:78,z:"etc",name:"라떼잔 ice",hint:"소진 시",avg:"-",u:false},
   {id:79,z:"etc",name:"밀크티잔 ice",hint:"소진 시",avg:"-",u:false},
@@ -265,7 +321,6 @@ const ITEMS=[
   {id:81,z:"etc",name:"티잔 hot",hint:"소진 시",avg:"-",u:false},
   {id:82,z:"etc",name:"티팟(도자기)",hint:"소진 시",avg:"-",u:false},
   {id:83,z:"etc",name:"티팟(스덴)",hint:"소진 시",avg:"-",u:false},
-  // 만돈에서 가져올 품목
   {id:84,z:"from_mandon",name:"레몬(착즙용)",hint:"소진 시",avg:"-",u:false},
   {id:85,z:"from_mandon",name:"레몬즙(시판제품)",hint:"소진 시",avg:"-",u:false},
   {id:86,z:"from_mandon",name:"쓰레기봉투",hint:"소진 시",avg:"-",u:false},
@@ -275,29 +330,56 @@ const ITEMS=[
   {id:90,z:"from_mandon",name:"꿀",hint:"소진 시",avg:"-",u:false},
 ];
 
+// ── STATE ──────────────────────────────────────────────
+const LS_ITEMS = 'lt_bonjeom_items';
+const LS_ZONES = 'lt_bonjeom_zones';
+
+function loadItems(){
+  try{ const d=localStorage.getItem(LS_ITEMS); return d?JSON.parse(d):JSON.parse(JSON.stringify(DEFAULT_ITEMS)); }catch(e){ return JSON.parse(JSON.stringify(DEFAULT_ITEMS)); }
+}
+function loadZones(){
+  try{ const d=localStorage.getItem(LS_ZONES); return d?JSON.parse(d):JSON.parse(JSON.stringify(DEFAULT_ZONES)); }catch(e){ return JSON.parse(JSON.stringify(DEFAULT_ZONES)); }
+}
+function saveItems(){ localStorage.setItem(LS_ITEMS, JSON.stringify(ITEMS)); }
+function saveZones(){ localStorage.setItem(LS_ZONES, JSON.stringify(ZONES)); }
+
+let ZONES=loadZones();
+let ITEMS=loadItems();
 let st={};
 ITEMS.forEach(i=>st[i.id]={s:null,q:1});
-let az="all",su=false,sn=false,pressTimer=null;
-let touchStartX=0,touchStartY=0,touchMoved=false;
+
+let az="all", sn=false;
+let pressTimer=null, touchStartX=0, touchStartY=0, touchMoved=false;
+let activeTab="check";
+let adminZone=ZONES[0]?.id||"";
+let editingId=null;
 
 function today(){
   const d=new Date(),w=["일","월","화","수","목","금","토"];
   return `${d.getMonth()+1}/${d.getDate()}(${w[d.getDay()]})`;
 }
-
 function getUnit(avg){
-  if(avg==="-") return "개";
+  if(!avg||avg==="-") return "개";
   const m=avg.match(/[가-힣]+/g);
   return m?m[m.length-1]:"개";
 }
+function nextId(){ return ITEMS.length>0?Math.max(...ITEMS.map(i=>i.id))+1:1; }
 
-function needCnt(z){
-  return ITEMS.filter(i=>(z==="all"||i.z===z)&&st[i.id].s==="need").length;
+// ── TAB ───────────────────────────────────────────────
+function switchTab(tab){
+  activeTab=tab;
+  document.querySelectorAll('.tbtab').forEach((t,i)=>t.classList.toggle('on',['check','admin'][i]===tab));
+  document.getElementById('panel-check').classList.toggle('on',tab==='check');
+  document.getElementById('panel-admin').classList.toggle('on',tab==='admin');
+  if(tab==='admin') renderAdmin();
 }
 
+// ── CHECK ─────────────────────────────────────────────
+function needCnt(z){ return ITEMS.filter(i=>(z==="all"||i.z===z)&&st[i.id]&&st[i.id].s==="need").length; }
+
 function sync(){
-  const need=ITEMS.filter(i=>st[i.id].s==="need").length;
-  const ok=ITEMS.filter(i=>st[i.id].s==="ok").length;
+  const need=ITEMS.filter(i=>st[i.id]&&st[i.id].s==="need").length;
+  const ok=ITEMS.filter(i=>st[i.id]&&st[i.id].s==="ok").length;
   document.getElementById("sN").textContent=need;
   document.getElementById("sO").textContent=ok;
   document.getElementById("sL").textContent=ITEMS.length-need-ok;
@@ -308,23 +390,23 @@ function sync(){
 }
 
 function tap(id){
+  if(!st[id]) st[id]={s:null,q:1};
   const s=st[id];
   if(s.s==="need"){s.s=null;s.q=1;}
   else if(s.s==="ok"){s.s="need";s.q=1;}
-  else{s.s="need";}
+  else s.s="need";
   sync();renderChips();renderContent();
 }
-
 function longPress(id){
+  if(!st[id]) st[id]={s:null,q:1};
   const s=st[id];
-  s.s=s.s==="ok"?null:"ok";
-  s.q=1;
+  s.s=s.s==="ok"?null:"ok"; s.q=1;
   if(navigator.vibrate) navigator.vibrate(30);
   sync();renderChips();renderContent();
 }
-
 function changeQ(e,id,d){
   e.stopPropagation();
+  if(!st[id]) st[id]={s:"need",q:1};
   st[id].q=Math.max(1,st[id].q+d);
   const el=document.getElementById("qv"+id);
   if(el) el.textContent=st[id].q;
@@ -333,8 +415,7 @@ function changeQ(e,id,d){
 function getFilt(){
   return ITEMS.filter(i=>{
     if(az!=="all"&&i.z!==az) return false;
-    if(su&&!i.u) return false;
-    if(sn&&st[i.id].s!=="need") return false;
+    if(sn&&(!st[i.id]||st[i.id].s!=="need")) return false;
     return true;
   });
 }
@@ -347,15 +428,12 @@ function renderChips(){
       const n=needCnt(z.id);
       return `<span class="chip${az===z.id?" on":""}" onclick="setZ('${z.id}')">${z.label}${n>0?`<span class="nc">${n}</span>`:""}</span>`;
     }).join("")+
-    `<span class="chip${su?" alert-on":""}" onclick="toggleSU()">긴급</span>`+
     `<span class="chip${sn?" alert-on":""}" onclick="toggleSN()">발주만</span>`+
     `<span class="chip" onclick="doReset()">초기화</span>`;
 }
-
 function setZ(z){az=z;renderChips();renderContent();}
-function toggleSU(){su=!su;renderChips();renderContent();}
 function toggleSN(){sn=!sn;renderChips();renderContent();}
-function doReset(){ITEMS.forEach(i=>st[i.id]={s:null,q:1});su=false;sn=false;sync();renderChips();renderContent();}
+function doReset(){ITEMS.forEach(i=>st[i.id]={s:null,q:1});sn=false;sync();renderChips();renderContent();}
 
 function renderContent(){
   const items=getFilt();
@@ -365,29 +443,28 @@ function renderContent(){
   items.forEach(i=>{if(!groups[i.z])groups[i.z]=[];groups[i.z].push(i);});
   el.innerHTML=ZONES.filter(z=>groups[z.id]).map(z=>{
     const its=groups[z.id];
-    const nc=its.filter(i=>st[i.id].s==="need").length;
+    const nc=its.filter(i=>st[i.id]&&st[i.id].s==="need").length;
     return `<div class="sec">
       ${az==="all"?`<div class="sec-head">
         <span class="sec-title">${z.label}</span>
         <span>${nc>0?`<span class="sec-need">발주 ${nc}&nbsp;</span>`:""}<span class="sec-meta">${its.length}개</span></span>
       </div>`:""}
       ${its.map(i=>{
-        const s=st[i.id];
-        const isNeed=s.s==="need";
-        const isOk=s.s==="ok";
-        return `<div class="row${isOk?" is-ok":""}" id="row${i.id}"
+        if(!st[i.id]) st[i.id]={s:null,q:1};
+        const s=st[i.id]; const isNeed=s.s==="need"; const isOk=s.s==="ok";
+        return `<div class="row${isOk?" is-ok":""}"
           onmousedown="startPress(${i.id},event)" onmouseup="endPress(${i.id})" onmouseleave="cancelPress()"
           ontouchstart="startPress(${i.id},event)" ontouchmove="movePress(event)" ontouchend="endPress(${i.id})" ontouchcancel="cancelPress()">
           <div class="row-main">
             <div class="row-info">
-              <div class="row-name${i.u?" urg":""}">${i.name}${i.u?`<span class="urg-badge">긴급</span>`:""}</div>
-              <div class="row-hint">${i.hint}${i.avg!=="-"?` · 평균 ${i.avg}`:""}</div>
+              <div class="row-name">${i.name}</div>
+              <div class="row-hint">${i.hint}${i.avg&&i.avg!=="-"?` · 평균 ${i.avg}`:""}</div>
             </div>
             <div class="dot${isNeed?" need":isOk?" ok":""}"></div>
           </div>
           <div class="qty-expand${isNeed?" open":""}">
             <div class="qty-inner">
-              <span class="qty-avg">평균 ${i.avg}</span>
+              <span class="qty-avg">${i.avg&&i.avg!=="-"?`평균 ${i.avg}`:""}</span>
               <div class="qty-ctrl">
                 <button class="qty-btn" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="changeQ(event,${i.id},-1)">−</button>
                 <span class="qty-val" id="qv${i.id}">${s.q}</span>
@@ -402,57 +479,108 @@ function renderContent(){
 }
 
 function startPress(id,e){
-  cancelPress();
-  touchMoved=false;
+  cancelPress(); touchMoved=false;
   const t=e.touches?e.touches[0]:e;
-  touchStartX=t.clientX;
-  touchStartY=t.clientY;
-  pressTimer=setTimeout(()=>{
-    if(!touchMoved){pressTimer=null;longPress(id);}
-  },500);
+  touchStartX=t.clientX; touchStartY=t.clientY;
+  pressTimer=setTimeout(()=>{if(!touchMoved){pressTimer=null;longPress(id);}},500);
 }
 function movePress(e){
   if(!pressTimer) return;
   const t=e.touches?e.touches[0]:e;
-  const dx=Math.abs(t.clientX-touchStartX);
-  const dy=Math.abs(t.clientY-touchStartY);
-  if(dx>6||dy>6){touchMoved=true;cancelPress();}
+  if(Math.abs(t.clientX-touchStartX)>6||Math.abs(t.clientY-touchStartY)>6){touchMoved=true;cancelPress();}
 }
-function endPress(id){
-  if(pressTimer&&!touchMoved){clearTimeout(pressTimer);pressTimer=null;tap(id);}
-  else{cancelPress();}
-}
+function endPress(id){if(pressTimer&&!touchMoved){clearTimeout(pressTimer);pressTimer=null;tap(id);}else cancelPress();}
 function cancelPress(){if(pressTimer){clearTimeout(pressTimer);pressTimer=null;}}
 
+// ── SHARE ─────────────────────────────────────────────
 function buildMsg(){
-  const need=ITEMS.filter(i=>st[i.id].s==="need");
-  let msg=`[La Terrasse 발주 요청]\n${today()}\n`;
-  need.forEach(i=>msg+=`\n· ${i.name} ${st[i.id].q}${getUnit(i.avg)}`);
-  msg+=`\n\n총 ${need.length}개 품목 발주 확인 부탁드립니다.`;
+  const need=ITEMS.filter(i=>st[i.id]&&st[i.id].s==="need");
+  const byZone={};
+  need.forEach(i=>{if(!byZone[i.z])byZone[i.z]=[];byZone[i.z].push(i);});
+  let msg=`[La Terrasse 본점 발주 요청]\n${today()}\n`;
+  ZONES.filter(z=>byZone[z.id]).forEach(z=>{
+    msg+=`\n▪ ${z.label}\n`;
+    byZone[z.id].forEach(i=>msg+=`· ${i.name} ${st[i.id].q}${getUnit(i.avg)}\n`);
+  });
+  msg+=`\n총 ${need.length}개 품목 발주 확인 부탁드립니다.`;
   return msg;
 }
-
-function openSheet(){
-  document.getElementById("msg").textContent=buildMsg();
-  document.getElementById("cpBtn").textContent="복사";
-  document.getElementById("ov").classList.add("open");
-}
+function openSheet(){document.getElementById("msg").textContent=buildMsg();document.getElementById("cpBtn").textContent="복사";document.getElementById("ov").classList.add("open");}
 function closeSheet(){document.getElementById("ov").classList.remove("open");}
-function doCopy(){
-  navigator.clipboard.writeText(document.getElementById("msg").textContent).then(()=>{
-    const b=document.getElementById("cpBtn");
-    b.textContent="복사됨!";
-    setTimeout(()=>b.textContent="복사",1500);
-  });
-}
-function doKakao(){
-  const t=document.getElementById("msg").textContent;
-  window.location.href=`kakaotalk://msg/send?text=${encodeURIComponent(t)}`;
-  setTimeout(()=>navigator.clipboard.writeText(t),400);
+function doCopy(){navigator.clipboard.writeText(document.getElementById("msg").textContent).then(()=>{const b=document.getElementById("cpBtn");b.textContent="복사됨!";setTimeout(()=>b.textContent="복사",1500);});}
+function doKakao(){const t=document.getElementById("msg").textContent;window.location.href=`kakaotalk://msg/send?text=${encodeURIComponent(t)}`;setTimeout(()=>navigator.clipboard.writeText(t),400);}
+
+// ── ADMIN ─────────────────────────────────────────────
+function renderAdmin(){
+  // zone tabs
+  document.getElementById("adminZoneTabs").innerHTML=
+    ZONES.map(z=>`<span class="azt${adminZone===z.id?" on":""}" onclick="setAdminZone('${z.id}')">${z.label}</span>`).join("");
+  // list
+  const items=ITEMS.filter(i=>i.z===adminZone);
+  document.getElementById("adminList").innerHTML=items.length?
+    items.map(i=>`
+      <div class="admin-item">
+        <div class="admin-item-info">
+          <div class="admin-item-name">${i.name}</div>
+          <div class="admin-item-hint">${i.hint}${i.avg&&i.avg!=="-"?` · 평균 ${i.avg}`:""}</div>
+        </div>
+        <div class="admin-actions">
+          <button class="a-btn" onclick="openEdit(${i.id})">수정</button>
+          <button class="a-btn del" onclick="deleteItem(${i.id})">삭제</button>
+        </div>
+      </div>`).join(""):
+    `<div class="empty">이 구역에 품목이 없어요</div>`;
 }
 
-document.getElementById("sub").textContent="본점 · 웨스턴돔 · "+today();
+function setAdminZone(z){adminZone=z;renderAdmin();}
+
+function addItem(){
+  const name=document.getElementById("newName").value.trim();
+  const hint=document.getElementById("newHint").value.trim();
+  if(!name) return;
+  const id=nextId();
+  ITEMS.push({id,z:adminZone,name,hint:hint||"소진 시",avg:"-",u:false});
+  st[id]={s:null,q:1};
+  saveItems();
+  document.getElementById("newName").value="";
+  document.getElementById("newHint").value="";
+  renderAdmin();sync();renderChips();renderContent();
+}
+
+function deleteItem(id){
+  if(!confirm(`"${ITEMS.find(i=>i.id===id)?.name}" 품목을 삭제할까요?`)) return;
+  ITEMS.splice(ITEMS.findIndex(i=>i.id===id),1);
+  delete st[id];
+  saveItems();
+  renderAdmin();sync();renderChips();renderContent();
+}
+
+function openEdit(id){
+  editingId=id;
+  const item=ITEMS.find(i=>i.id===id);
+  document.getElementById("editName").value=item.name;
+  document.getElementById("editHint").value=item.hint;
+  document.getElementById("editAvg").value=item.avg||"-";
+  const sel=document.getElementById("editZone");
+  sel.innerHTML=ZONES.map(z=>`<option value="${z.id}"${z.id===item.z?" selected":""}>${z.label}</option>`).join("");
+  document.getElementById("editOv").classList.add("open");
+}
+function closeEdit(){document.getElementById("editOv").classList.remove("open");editingId=null;}
+function saveEdit(){
+  const item=ITEMS.find(i=>i.id===editingId);
+  if(!item) return;
+  item.name=document.getElementById("editName").value.trim()||item.name;
+  item.hint=document.getElementById("editHint").value.trim()||item.hint;
+  item.avg=document.getElementById("editAvg").value.trim()||"-";
+  item.z=document.getElementById("editZone").value;
+  saveItems();
+  closeEdit();
+  renderAdmin();sync();renderChips();renderContent();
+}
+
+// ── INIT ──────────────────────────────────────────────
 renderChips();renderContent();sync();
+document.getElementById("sub").textContent="본점 · 웨스턴돔 · "+today();
 </script>
 </body>
 </html>
